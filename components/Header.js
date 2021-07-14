@@ -39,7 +39,7 @@ function Header() {
             <p>{session ? `Hello, ${session.user.name}` : "Guest, Sign In"}</p>
             <p className="font-extrabold md:text-xs">Account &amp; List</p>
           </div>
-          <div className="link">
+          <div className="link" onClick={() => router.push("/orders")}>
             <p>Returns</p>
             <p className="font-extrabold md:text-xs">&amp; Orders</p>
           </div>
@@ -61,10 +61,8 @@ function Header() {
       {/* bottom nav */}
       <div className="flex items-center space-x-3 p-2 pl-6 bg-amazon_blue-light text-white text-sm lg:justify-between">
         <p className="link flex items-center">
-          <span className="h-6 mr-1">
-            <Icon name="menu" size="3xl" />
-          </span>
-          All
+          <Icon name="menu" size="3xl" />
+          <span className=" ml-1">All</span>
         </p>
         <p className="link">Best Sellers</p>
         <p className="link hidden lg:inline-flex">Mobile</p>
