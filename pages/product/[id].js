@@ -27,7 +27,7 @@ function product({ products, product }) {
 
   const addItemToBasket = () => {
     const productSingle = {
-      id,
+      id: product.id,
       title: product.title,
       price: product.price,
       rating: product.rating,
@@ -35,6 +35,7 @@ function product({ products, product }) {
       description: product.description,
       category: product.category,
       image: product.image,
+      quantity: 1,
     };
     dispatch(addToBasket(productSingle));
   };
