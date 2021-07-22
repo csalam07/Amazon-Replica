@@ -6,11 +6,13 @@ import Image from "next/image";
 import Label from "@material-tailwind/react/Label";
 import { useDispatch } from "react-redux";
 import { addToBasket } from "../slices/basketSlice";
+import { useRouter } from "next/dist/client/router";
 
 const MAX_RATING = 5;
 const MIN_RATING = 1;
 
 function Product({ id, title, price, description, category, image }) {
+  const router = useRouter();
   const dispatch = useDispatch();
   const [hasPrime] = useState(Math.random() < 0.5);
   const [rating] = useState(
@@ -27,6 +29,7 @@ function Product({ id, title, price, description, category, image }) {
       description,
       category,
       image,
+      quantity: 1,
     };
     dispatch(addToBasket(product));
   };
@@ -39,7 +42,14 @@ function Product({ id, title, price, description, category, image }) {
         {category}
       </Label>
 
-      <Image src={image} height={200} width={200} objectFit="contain" />
+      <Image
+        className="cursor-pointer transition duration-200 transform ease-in hover:scale-105 hover:animate-pulse"
+        src={image}
+        height={200}
+        width={200}
+        objectFit="contain"
+        onClick={() => router.push(`/product/${id}`)}
+      />
       <h4 className="my-3">{title}</h4>
       <div className="flex">
         {Array(rating)
@@ -68,6 +78,7 @@ function Product({ id, title, price, description, category, image }) {
         ripple="light"
         className="mt-auto button"
       >
+        <Icon name="shopping_bag" size="sm" />
         Add to Cart
       </Button>
     </div>

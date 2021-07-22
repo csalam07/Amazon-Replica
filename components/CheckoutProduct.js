@@ -1,9 +1,15 @@
 import Icon from "@material-tailwind/react/Icon";
 import Image from "next/image";
 import Currency from "react-currency-formatter";
-import { useDispatch } from "react-redux";
-import { addToBasket, removeFromBasket } from "../slices/basketSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addToBasket,
+  removeFromBasket,
+  selectItems,
+  updateQuantity,
+} from "../slices/basketSlice";
 import Button from "@material-tailwind/react/Button";
+import { useState } from "react";
 
 function CheckoutProduct({
   id,
@@ -12,26 +18,31 @@ function CheckoutProduct({
   rating,
   hasPrime,
   description,
-  category,
+  quantity,
   image,
 }) {
   const dispatch = useDispatch();
+  const [quantityUp, setQuantityUp] = useState(quantity);
+
   const addItemToBasket = () => {
-    const product = {
-      id,
-      title,
-      price,
-      rating,
-      hasPrime,
-      description,
-      category,
-      image,
-    };
-    dispatch(addToBasket(product));
+    setQuantityUp(quantity + 1);
+    updateQuantityHere(quantity + 1);
+  };
+
+  const decrease = () => {
+    if (quantity > 0) {
+      setQuantityUp(quantity - 1);
+      updateQuantityHere(quantity - 1);
+    }
   };
 
   const removeItemFromBasket = () => {
     dispatch(removeFromBasket({ id }));
+  };
+
+  const updateQuantityHere = (count) => {
+    const product = { id, quantity: count };
+    dispatch(updateQuantity(product));
   };
 
   return (
@@ -50,7 +61,8 @@ function CheckoutProduct({
         </div>
         <p className="text-xs my-2 line-clamp-3">{description}</p>
         <Currency quantity={price} currency="GBP" />
-
+        {" * "} {quantity} {" = "}
+        <Currency quantity={price * quantity} currency="GBP" />
         {hasPrime && (
           <div className="flex items-center space-x-2">
             <img
@@ -65,11 +77,27 @@ function CheckoutProduct({
       </div>
 
       <div className="flex flex-col space-y-2 my-auto justify-self-end">
-        <Button className="button" onClick={addItemToBasket}>
-          Add more
-        </Button>
+        <div className="flex py-2 space-x-3">
+          <Button className="button" onClick={addItemToBasket}>
+            <Icon name="add" />
+          </Button>
+          <Button
+            color="gray"
+            buttonType="link"
+            size="small"
+            rounded={true}
+            block={false}
+            iconOnly={false}
+            ripple="light"
+          >
+            {quantity}
+          </Button>
+          <Button className="button" onClick={decrease}>
+            <Icon name="remove" />
+          </Button>
+        </div>
         <Button className="button" onClick={removeItemFromBasket}>
-          Delete
+          remove
         </Button>
       </div>
     </div>

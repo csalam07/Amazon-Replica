@@ -3,7 +3,7 @@ import "../styles/globals.css";
 import Head from "next/head";
 import { Provider } from "react-redux";
 import { Provider as AuthProvider } from "next-auth/client";
-
+import { AnimateSharedLayout } from "framer-motion";
 import { store } from "../app/store";
 
 const MyApp = ({ Component, pageProps }) => {
@@ -24,7 +24,9 @@ const MyApp = ({ Component, pageProps }) => {
       </Head>
       <AuthProvider session={pageProps.session}>
         <Provider store={store}>
-          <Component {...pageProps} />
+          <AnimateSharedLayout>
+            <Component {...pageProps} />
+          </AnimateSharedLayout>
         </Provider>
       </AuthProvider>
     </>

@@ -3,12 +3,33 @@ import Icon from "@material-tailwind/react/Icon";
 import { signIn, signOut, useSession } from "next-auth/client";
 import { useRouter } from "next/dist/client/router";
 import { useSelector } from "react-redux";
-import { selectItems } from "../slices/basketSlice";
+import { selectItems, selectTotalItems } from "../slices/basketSlice";
+import { useState } from "react";
+import SearchItem from "./SearchItem";
 
-function Header() {
+function Header({ products }) {
+  const [searchTerm, setSearchTerm] = useState([]);
+
+  const [showResults, setShowResults] = useState(false);
+  const [searchResult, setSearchResult] = useState([]);
+
   const [session, laoding] = useSession();
   const router = useRouter();
   const items = useSelector(selectItems);
+  const selectTotalItem = useSelector(selectTotalItems);
+
+  const handleSearch = (e) => {
+    let term = e.target.value;
+    setSearchTerm(term);
+    term = term.toLowerCase();
+
+    setSearchResult(
+      term &&
+        products?.filter((product) =>
+          product.title.toLowerCase().includes(term),
+        ),
+    );
+  };
 
   return (
     <header className="sticky top-0 z-50">
@@ -23,17 +44,62 @@ function Header() {
           />
         </div>
 
-        <div className="hidden sm:flex items-center h-10 rounded-md flex-grow cursor-pointer bg-yellow-400 hover:bg-yellow-500">
+        {/* search start */}
+        <div className="hidden relative sm:flex items-center h-10 rounded-md flex-grow cursor-pointer bg-yellow-400 hover:bg-yellow-500">
           <input
             placeholder="Search"
             className="p-2 h-full w-6 flex-grow flex-shrink rounded-l-md focus:outline-none px-4"
             type="text"
+            value={searchTerm}
+            onChange={handleSearch}
+            onMouseOver={() => setShowResults(true)}
+            onBlur={() => setShowResults(false)}
+            onFocus={() => setShowResults(true)}
           />
-          {/* <SearchIcon " /> */}
+
           <span className="flex text-center p-4">
             <Icon name="search" size="3xl" />
           </span>
+
+          {showResults && (
+            <div
+              className="absolute w-full bg-white bottom-0 z-10 rounded-md overflow-x-hidden scrollbar-thin scrollbar-thumb-yellow-400 scrollbar-track-transparent"
+              style={{
+                transform: "translateY(100%)",
+                height: "auto",
+                maxHeight: "400px",
+                overflowY: "auto",
+              }}
+              onClick={() => setShowResults(true)}
+              onMouseOver={() => setShowResults(true)}
+              onMouseLeave={() => setShowResults(false)}
+            >
+              {searchResult?.length ? (
+                searchResult.map(
+                  ({ id, title, price, description, category, image }) => (
+                    <SearchItem
+                      key={id}
+                      id={id}
+                      title={title}
+                      price={price}
+                      description={description}
+                      category={category}
+                      image={image}
+                    />
+                  ),
+                )
+              ) : (
+                <>
+                  {searchTerm && (
+                    <p>{`No products found matching ${searchTerm}`}</p>
+                  )}
+                </>
+              )}
+            </div>
+          )}
         </div>
+        {/* search end */}
+
         <div className="text-white flex items-center text-xs space-x-6 mx-6 whitespace-nowrap">
           <div className="link" onClick={!session ? signIn : signOut}>
             <p>{session ? `Hello, ${session.user.name}` : "Guest, Sign In"}</p>
@@ -48,7 +114,7 @@ function Header() {
             onClick={() => router.push("/checkout")}
           >
             <span className="absolute top-0 animate-bounce right-0  md:right-10 h-4 w-4 bg-yellow-400 text-center rounded-full text-black font-bold">
-              {items?.length}
+              {selectTotalItem}
             </span>
 
             <Icon name="shopping_basket" size="5xl" color="white" />

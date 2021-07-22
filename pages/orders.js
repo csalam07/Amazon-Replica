@@ -1,12 +1,14 @@
 import Head from "next/head";
 import { getSession, useSession } from "next-auth/client";
 import Header from "../components/Header";
+import Footer from "../components/Footer";
+
 import db from "../firebase";
 import Order from "../components/Order";
 import LottieFiles from "../components/LottieFiles";
 import Icon from "@material-tailwind/react/Icon";
 
-function orders({ orders }) {
+function orders({ orders, products }) {
   const [session] = useSession();
 
   return (
@@ -15,7 +17,7 @@ function orders({ orders }) {
         <title>Orders | Amazon</title>
       </Head>
       <div className="bg-gray-100 h-screen scrollbar-thin scrollbar-thumb-yellow-400 scrollbar-track-transparent">
-        <Header />
+        <Header products={products} />
 
         <main className="max-w-screen-lg mx-auto mt-10 p-10">
           <h1 className="flex items-center justify-between text-3xl border-b mb-3 pb-2 border-yellow-400">
@@ -37,6 +39,7 @@ function orders({ orders }) {
             )}
           </div>
         </main>
+        <Footer />
       </div>
     </>
   );
@@ -54,6 +57,9 @@ export async function getServerSideProps(context) {
   if (!session) {
     return { props: {} };
   }
+  const products = await fetch("https://fakestoreapi.com/products").then(
+    (res) => res.json(),
+  );
 
   const stripeOrders = await db
     .collection("users")
@@ -81,6 +87,7 @@ export async function getServerSideProps(context) {
   return {
     props: {
       orders,
+      products,
     },
   };
 }

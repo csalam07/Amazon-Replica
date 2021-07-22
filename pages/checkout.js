@@ -1,21 +1,29 @@
 import Head from "next/head";
 import Image from "next/image";
 import Header from "../components/Header";
+import Footer from "../components/Footer";
 import H4 from "@material-tailwind/react/Heading4";
 import { useSelector } from "react-redux";
-import { selectItems, selectTotal } from "../slices/basketSlice";
+import {
+  selectItems,
+  selectTotal,
+  selectTotalItems,
+} from "../slices/basketSlice";
 import CheckoutProduct from "../components/CheckoutProduct";
 import Currency from "react-currency-formatter";
 import Button from "@material-tailwind/react/Button";
 import { useSession } from "next-auth/client";
 import { loadStripe } from "@stripe/stripe-js";
 import axios from "axios";
+import LottieFiles from "../components/LottieFiles";
 
 const stripePromise = loadStripe(process.env.stripe_public_key);
 
 function checkout() {
   const items = useSelector(selectItems);
+  console.warn(items);
   const total = useSelector(selectTotal);
+  const selectTotalItem = useSelector(selectTotalItems);
   const [session] = useSession();
 
   const createCheckoutSession = async () => {
@@ -40,7 +48,7 @@ function checkout() {
         <title>Checkout | Amazon</title>
         <link rel="icon" href="/favicon.png" />
       </Head>
-      <div className="bg-gray-100 h-screen scrollbar-thin  scrollbar-thumb-yellow-400 scrollbar-track-transparent">
+      <div className="bg-white h-screen scrollbar-thin  scrollbar-thumb-yellow-400 scrollbar-track-transparent">
         <Header />
         <main className="md:flex max-w-screen-2xl mx-auto">
           {/* left */}
@@ -56,9 +64,14 @@ function checkout() {
 
             <div className="flex flex-col p-5 space-y-10 bg-white">
               <H4 color="lightBlue">
-                {items?.length
-                  ? `${items?.length} items in Basket`
-                  : "Your Busket is emty"}
+                {items?.length ? (
+                  `${items?.length} items in Basket`
+                ) : (
+                  <>
+                    <H4> Empty basket. Nothing to show</H4>
+                    <LottieFiles />
+                  </>
+                )}
               </H4>
 
               {items.map((item, i) => (
@@ -72,6 +85,7 @@ function checkout() {
                   category={item.category}
                   image={item.image}
                   hasPrime={item.hasPrime}
+                  quantity={item.quantity}
                 />
               ))}
             </div>
@@ -80,7 +94,7 @@ function checkout() {
             {items.length > 0 && (
               <>
                 <h2 className="whitespace-nowrap">
-                  Subtotal ({items.length} items):{" "}
+                  Subtotal ({selectTotalItem} items):{" "}
                   <span className="font-bold">
                     <Currency quantity={total} currency="GBP" />
                   </span>
@@ -100,6 +114,7 @@ function checkout() {
             )}
           </div>
         </main>
+        <Footer />
       </div>
     </>
   );
